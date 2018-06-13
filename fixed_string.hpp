@@ -687,10 +687,7 @@ std::istream& operator>>(std::istream& in, basic_fixed_string<Sz, ChT>& str)
 	std::string s;
 	in >> s;
 
-	for (typename basic_fixed_string<Sz, ChT>::size_type idx = 0; idx < min(s.size(), str.size()); ++idx)
-	{
-		str.buf[idx] = s[idx];
-	}
+	*this = s;
 
 	return in;
 }
