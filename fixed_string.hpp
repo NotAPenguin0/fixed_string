@@ -1,6 +1,6 @@
 /*
 * This file is subject to the terms and conditions defined in
-* file 'LICENSE', which is part of this source code package.
+* file 'LICENSE.txt', which is part of this source code package.
 * Licensed by Michiel Vande Ginste
 */
 
@@ -14,6 +14,7 @@
 #include <exception>
 #include <algorithm>
 #include <stdexcept>
+#include <type_traits>
 
 #pragma endregion
 #undef min
@@ -232,7 +233,7 @@ basic_fixed_string<Size, CharT>::basic_fixed_string(basic_fixed_string<N, CharT>
 		buf[idx] = other[idx];
 	}
 	//Add null terminator
-	buf[Size - 1] = '\0';
+	buf[min(N, Size) - 1] = '\0';
 }
 
 #pragma endregion
@@ -313,7 +314,7 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(basi
 		buf[idx] = other[idx];
 	}
 	//Add null terminator
-	buf[Size - 1] = '\0';
+	buf[min(N, Size) - 1] = '\0';
 
 	return *this;
 }
