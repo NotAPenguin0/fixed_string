@@ -179,6 +179,7 @@ basic_fixed_string<Size, CharT>::basic_fixed_string(const CharT* buffer)
 		if (buffer[idx] == '\0') //do not read past null terminator
 			break;
 	}
+	buf[Size - 1] = '\0';
 }
 	
 /*
@@ -211,6 +212,7 @@ basic_fixed_string<Size, CharT>::basic_fixed_string(basic_fixed_string const& ot
 	{
 		buf[idx] = other.buf[idx];
 	}
+	buf[Size - 1] = '\0';
 }
 
 template<unsigned Size, typename CharT>
@@ -221,6 +223,7 @@ basic_fixed_string<Size, CharT>::basic_fixed_string(basic_fixed_string&& other)
 		buf[idx] = other.buf[idx];
 		other.buf[idx] = '\0';
 	}
+	buf[Size - 1] = '\0';
 }
 
 template<unsigned Size, typename CharT>
@@ -249,6 +252,7 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(basi
 		{
 			buf[idx] = other.buf[idx];
 		}
+		buf[Size - 1] = '\0';
 	}
 	return *this;
 }
@@ -263,6 +267,7 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(basi
 			buf[idx] = other.buf[idx];
 			other.buf[idx] = '\0';
 		}
+		buf[Size - 1] = '\0';
 	}
 	return *this;
 }
@@ -301,6 +306,7 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(cons
 		if (buffer[idx] == '\0') //do not read past null terminator
 			break;
 	}
+	buf[Size - 1] = '\0';
 	return *this;
 }
 
