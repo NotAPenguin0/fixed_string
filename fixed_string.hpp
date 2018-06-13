@@ -103,7 +103,7 @@ public:
 	std::string substr(size_type pos = 0, size_type count = npos);
 
 	//returns the number of characters copied
-	size_type copy(CharT* dest, size_type count, size_type pos = 0);
+	size_type copy(CharT* dest, size_type count, size_type pos = 0) const;
 
 	void swap(basic_fixed_string& other);
 
@@ -563,7 +563,7 @@ std::string basic_fixed_string<Size, CharT>::substr(size_type pos, size_type cou
 }
 
 template<unsigned Size, typename CharT>
-typename basic_fixed_string<Size, CharT>::size_type basic_fixed_string<Size, CharT>::copy(CharT* dest, size_type count, size_type pos)
+typename basic_fixed_string<Size, CharT>::size_type basic_fixed_string<Size, CharT>::copy(CharT* dest, size_type count, size_type pos) const
 {
 	if (pos > size())
 		throw std::out_of_range("fixed_string iterator out of range");
