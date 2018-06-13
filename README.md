@@ -41,4 +41,4 @@ Any other feedback, like code improvements and new features are also greatly app
 
 # Licensing
 
-This code is licenced under the GNU Public License v3.0
+This code is licenced under the GNU General Public License v3.0
