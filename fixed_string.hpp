@@ -44,7 +44,7 @@ public:
 	//buf should be null terminated
 	basic_fixed_string(const CharT* buffer);
 //	basic_fixed_string(const CharT (&str)[Size]);
-	basic_fixed_string(std::string const& str);
+	basic_fixed_string(std::basic_string<CharT> const & str);
 	basic_fixed_string(basic_fixed_string const& other);
 	basic_fixed_string(basic_fixed_string&& other);
 	template<unsigned N>
@@ -54,7 +54,7 @@ public:
 	basic_fixed_string& operator=(basic_fixed_string const& other);
 	basic_fixed_string& operator=(basic_fixed_string&& other);
 //	basic_fixed_string& operator=(const CharT (&str)[Size]);
-	basic_fixed_string& operator=(std::string const& str);
+	basic_fixed_string& operator=(std::basic_string<CharT> const& str);
 	basic_fixed_string& operator=(const CharT* buffer);
 	template<unsigned N>
 	basic_fixed_string& operator=(basic_fixed_string<N, CharT> const& other);
@@ -97,10 +97,10 @@ public:
 	basic_fixed_string& replace(size_type pos, size_type count, CharT c);
 	basic_fixed_string& replace(iterator first, iterator last, CharT c);
 	//Throws if str.length() < count
-	basic_fixed_string& replace(size_type pos, size_type count, std::string const& str);
-	basic_fixed_string& replace(iterator first, iterator last, std::string const& str);
+	basic_fixed_string& replace(size_type pos, size_type count, std::basic_string<CharT> const& str);
+	basic_fixed_string& replace(iterator first, iterator last, std::basic_string<CharT> const& str);
 
-	std::string substr(size_type pos = 0, size_type count = npos);
+	std::basic_string<CharT> substr(size_type pos = 0, size_type count = npos);
 
 	//returns the number of characters copied
 	size_type copy(CharT* dest, size_type count, size_type pos = 0) const;
@@ -108,7 +108,7 @@ public:
 	void swap(basic_fixed_string& other);
 
 	//Finds first occurrence
-	size_type find(std::string const& str, size_type pos = 0) const;
+	size_type find(std::basic_string<CharT> const& str, size_type pos = 0) const;
 	size_type find(CharT ch, size_type pos = 0) const;
 
 	bool operator==(basic_fixed_string const& other) const;
@@ -116,7 +116,7 @@ public:
 	bool operator!=(basic_fixed_string const& other) const;
 	bool operator!=(const CharT(&other)[Size]) const;
 
-	operator std::string() const;
+	operator std::basic_string<CharT>() const;
 	explicit operator const char*() const;
 	explicit operator char*();
 
@@ -177,7 +177,11 @@ basic_fixed_string<Size, CharT>::basic_fixed_string(const CharT* buffer)
 	{
 		buf[idx] = buffer[idx];
 		if (buffer[idx] == '\0') //do not read past null terminator
+		{
+			if (idx != size())
+				fill(idx, '\0');
 			break;
+		}
 	}
 	buf[Size - 1] = '\0';
 }
@@ -194,8 +198,9 @@ basic_fixed_string<Size, CharT>::basic_fixed_string(const CharT (&str)[Size])
 */
 
 template<unsigned Size, typename CharT>
-basic_fixed_string<Size, CharT>::basic_fixed_string(std::string const& str)
+basic_fixed_string<Size, CharT>::basic_fixed_string(std::basic_string<CharT> const & str)
 {
+	/*
 	for (size_type idx = 0; idx < min(size(), str.size()); ++idx)
 	{
 		buf[idx] = str[idx];
@@ -203,40 +208,56 @@ basic_fixed_string<Size, CharT>::basic_fixed_string(std::string const& str)
 			buf[min(Size - 1, idx + 1)] = '\0'; //make sure to null terminate
 	}
 	buf[Size - 1] = '\0';
+	*/
+	*this = str.c_str();
 }
 
 template<unsigned Size, typename CharT>
 basic_fixed_string<Size, CharT>::basic_fixed_string(basic_fixed_string const& other)
+	: basic_fixed_string(other.c_str())
 {
+/*
 	for (size_type idx = 0; idx < Size; ++idx)
 	{
 		buf[idx] = other.buf[idx];
 	}
 	buf[Size - 1] = '\0';
+*/
+//	*this = other.c_str();
 }
 
 template<unsigned Size, typename CharT>
-basic_fixed_string<Size, CharT>::basic_fixed_string(basic_fixed_string&& other)
+basic_fixed_string<Size, CharT>::basic_fixed_string(basic_fixed_string&& other) 
+	: basic_fixed_string(other.c_str())
 {
-	for (size_type idx = 0; idx < Size; ++idx)
+/*	for (size_type idx = 0; idx < Size; ++idx)
 	{
 		buf[idx] = other.buf[idx];
 		other.buf[idx] = '\0';
 	}
 	buf[Size - 1] = '\0';
+*/
+//	*this = other.c_str();
+	other.fill('\0');
 }
 
 template<unsigned Size, typename CharT>
 template<unsigned N>
 basic_fixed_string<Size, CharT>::basic_fixed_string(basic_fixed_string<N, CharT> const& other)
+	: basic_fixed_string(other.c_str())
 {
+/*
 	size_type sz = min(Size, N);
 	for (size_type idx = 0; idx < sz; ++idx)
 	{
 		buf[idx] = other[idx];
 	}
 	//Add null terminator
+	fill(min(N, Size - 2), '\0');
 	buf[min(N, Size) - 1] = '\0';
+*/
+
+//	*this = other.c_str();
 }
 
 #pragma endregion
@@ -248,11 +269,14 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(basi
 {
 	if (this != &other)
 	{
+		*this = other.c_str();
+/*
 		for (size_type idx = 0; idx < Size; ++idx)
 		{
 			buf[idx] = other.buf[idx];
 		}
 		buf[Size - 1] = '\0';
+*/
 	}
 	return *this;
 }
@@ -262,12 +286,15 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(basi
 {
 	if (this != &other)
 	{
+		*this = other.c_str();
+		/*
 		for (size_type idx = 0; idx < Size; ++idx)
 		{
 			buf[idx] = other.buf[idx];
 			other.buf[idx] = '\0';
 		}
 		buf[Size - 1] = '\0';
+		*/
 	}
 	return *this;
 }
@@ -284,15 +311,18 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(cons
 */
 
 template<unsigned Size, typename CharT>
-basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(std::string const& str)
+basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(std::basic_string<CharT> const& str)
 {
-	for (size_type idx = 0; idx < min(size(), str.size()); ++idx)
+/*	for (size_type idx = 0; idx < min(size(), str.size()); ++idx)
 	{
 		buf[idx] = str[idx];
 		if (idx == str.size() - 1)
 			buf[min(Size - 1, idx + 1)] = '\0'; //make sure to null terminate
 	}
 	buf[Size - 1] = '\0';
+*/
+
+	*this = str.c_str();
 
 	return *this;
 }
@@ -304,9 +334,14 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(cons
 	{
 		buf[idx] = buffer[idx];
 		if (buffer[idx] == '\0') //do not read past null terminator
+		{
+			if (idx != size())
+				fill(idx, '\0');
 			break;
+		}
 	}
 	buf[Size - 1] = '\0';
+
 	return *this;
 }
 
@@ -314,13 +349,15 @@ template<unsigned Size, typename CharT>
 template<unsigned N>
 basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::operator=(basic_fixed_string<N, CharT> const& other)
 {
-	size_type sz = min(Size, N);
+	*this = other.c_str();
+/*	size_type sz = min(Size, N);
 	for (size_type idx = 0; idx < sz; ++idx)
 	{
 		buf[idx] = other[idx];
 	}
 	//Add null terminator
 	buf[min(N, Size) - 1] = '\0';
+*/
 
 	return *this;
 }
@@ -524,7 +561,7 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::replace(iterat
 }
 
 template<unsigned Size, typename CharT>
-basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::replace(size_type pos, size_type count, std::string const& str)
+basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::replace(size_type pos, size_type count, std::basic_string<CharT> const& str)
 {
 	if (str.length() < count) throw std::length_error("str is too small");
 	if (pos + count >= size()) throw std::out_of_range("fixed_string iterator out of range");
@@ -538,7 +575,7 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::replace(size_t
 }
 
 template<unsigned Size, typename CharT>
-basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::replace(iterator first, iterator last, std::string const& str)
+basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::replace(iterator first, iterator last, std::basic_string<CharT> const& str)
 {
 	if (str.length() < static_cast<unsigned>(std::distance(first, last))) 
 		throw std::length_error("str is too small");
@@ -554,7 +591,7 @@ basic_fixed_string<Size, CharT>& basic_fixed_string<Size, CharT>::replace(iterat
 }
 
 template<unsigned Size, typename CharT>
-std::string basic_fixed_string<Size, CharT>::substr(size_type pos, size_type count)
+std::basic_string<CharT> basic_fixed_string<Size, CharT>::substr(size_type pos, size_type count)
 {
 	if (pos + count > size())
 		throw std::out_of_range("fixed_string iterator out of range");
@@ -596,7 +633,7 @@ void basic_fixed_string<Size, CharT>::swap(basic_fixed_string& other)
 }
 
 template<unsigned Size, typename CharT>
-typename basic_fixed_string<Size, CharT>::size_type basic_fixed_string<Size, CharT>::find(std::string const& str, size_type pos) const
+typename basic_fixed_string<Size, CharT>::size_type basic_fixed_string<Size, CharT>::find(std::basic_string<CharT> const& str, size_type pos) const
 {
 	/*Stealing algorithms lol*/
 	std::string s(buf);
@@ -660,9 +697,9 @@ bool basic_fixed_string<Size, CharT>::operator!=(basic_fixed_string const& other
 #pragma region Conversion Implementations
 
 template<unsigned Size, typename CharT>
-basic_fixed_string<Size, CharT>::operator std::string() const
+basic_fixed_string<Size, CharT>::operator std::basic_string<CharT>() const
 {
-	return std::string(buf);
+	return std::basic_string<CharT>(buf);
 }
 
 template<unsigned Size, typename CharT>
@@ -687,7 +724,7 @@ std::istream& operator>>(std::istream& in, basic_fixed_string<Sz, ChT>& str)
 	std::string s;
 	in >> s;
 
-	*this = s;
+	str = s;
 
 	return in;
 }
